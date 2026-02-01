@@ -1,37 +1,29 @@
 package main
 
 import (
-	"fmt"
-	"github/mbpaiba/my-api/internal/env"
-	"log"
-	"net/http"
+	"github/mbpaiba/my-api/internal/config"
+	"github/mbpaiba/my-api/internal/db"
+	"github/mbpaiba/my-api/internal/router"
 
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
 
 func main() {
-	log.SetFlags(log.Lshortfile)
+	cfg := config.Load()
 
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using system environment variables")
+	logger := zap.Must(zap.NewProduction()).Sugar()
+	defer logger.Sync()
+
+	database, err := db.New(cfg.DB)
+
+	if err != nil {
+		logger.Fatal("error conectando DB: ", err)
 	}
 
-	r := gin.Default()
+	defer database.Close()
 
-	// agregar if condicional dependiendo si esta en produccion
-	gin.SetMode(gin.ReleaseMode)
+	r := router.Setup()
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-
-	port := fmt.Sprintf(":%v", env.GetString("PORT", "3030"))
-
-	if err := r.Run(port); err != nil {
-		log.Fatalf("failed to run server: %v", err)
-	}
-
+	logger.Info("server iniciando en " + cfg.Addr)
+	logger.Fatal(r.Run(cfg.Addr))
 }
