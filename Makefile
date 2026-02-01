@@ -1,4 +1,4 @@
-include .envrc
+include .env
 MIGRATIONS_PATH = ./cmd/migrate/migrations
 
 .PHONY: migration
@@ -13,9 +13,13 @@ migrate-up:
 migrate-down:
 	@migrate -path=$(MIGRATIONS_PATH) -database=$(DB_MIGRATOR_ADDR) down $(filter-out $@,$(MAKECMDGOALS))
 
-.PHONY: docker-up
-docker-up:
-	docker compose up
+.PHONY: docker-build
+docker-build:
+	docker build -t my-api-v1 .
+
+.PHONY: docker-run
+docker-run:
+	docker run --rm -p 8080:8080 --env-file .env my-api-v1
 
 .PHONY: gen-docs
 gen-docs:
