@@ -1,13 +1,21 @@
 package main
 
 import (
+	"fmt"
+	"github/mbpaiba/my-api/internal/env"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	log.SetFlags(log.Lshortfile)
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	r := gin.Default()
 
@@ -20,7 +28,9 @@ func main() {
 		})
 	})
 
-	if err := r.Run(":8080"); err != nil {
+	port := fmt.Sprintf(":%v", env.GetString("PORT", "3030"))
+
+	if err := r.Run(port); err != nil {
 		log.Fatalf("failed to run server: %v", err)
 	}
 
