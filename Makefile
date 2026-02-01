@@ -13,6 +13,10 @@ migrate-up:
 migrate-down:
 	@migrate -path=$(MIGRATIONS_PATH) -database=$(DB_ADDR) down $(filter-out $@,$(MAKECMDGOALS))
 
+.PHONY: sqlc-gen
+sqlc-gen:
+	cd internal/db && sqlc generate
+
 .PHONY: docker-build
 docker-build:
 	docker build -t my-api-v1 .
