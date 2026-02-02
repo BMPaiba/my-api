@@ -3,6 +3,7 @@ package main
 import (
 	"github/mbpaiba/my-api/internal/config"
 	"github/mbpaiba/my-api/internal/db"
+	"github/mbpaiba/my-api/internal/db/sqlc"
 	"github/mbpaiba/my-api/internal/router"
 
 	"go.uber.org/zap"
@@ -22,7 +23,9 @@ func main() {
 
 	defer database.Close()
 
-	r := router.Setup()
+	queries := sqlc.New(database)
+
+	r := router.Setup(queries)
 
 	logger.Info("server iniciando en " + cfg.Addr)
 	logger.Fatal(r.Run(cfg.Addr))
