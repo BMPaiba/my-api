@@ -32,3 +32,11 @@ gen-docs:
 .PHONY: tidy
 tidy:
 	go mod tidy
+
+.PHONY: run
+run:
+	go run cmd/api/main.go
+
+.PHONY: dev
+dev:
+	air
